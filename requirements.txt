@@ -1,9 +1,17 @@
 # Core dependencies
-numpy>=1.24.0
-Pillow>=10.0.0
-pydantic>=2.5.0
+numpy==1.24.3
+Pillow==10.0.0
+pydantic==2.5.0
+
+# Video generation
+opencv-python==4.8.1.78
+
+# Chess-specific (for the example generator)
+# Install with: pip install python-chess cairosvg
+python-chess==1.999
+cairosvg==2.7.1  # For SVG to PNG conversion
 
 # Add your task-specific dependencies here
 # Examples:
-# networkx>=3.0  # For graph-based tasks
-# scipy>=1.11.0  # For scientific computing
+# networkx==3.0  # For graph-based tasks (maze)
+# scipy==1.11.0  # For scientific computing

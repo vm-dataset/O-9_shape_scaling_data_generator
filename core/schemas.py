@@ -23,6 +23,7 @@ class TaskPair(BaseModel):
     first_image: Any  # PIL Image
     final_image: Optional[Any] = None  # PIL Image or None
     goal_text: Optional[str] = None  # Text answer or None
+    ground_truth_video: Optional[str] = None  # Path to video file or None
     metadata: TaskMetadata
     
     class Config:

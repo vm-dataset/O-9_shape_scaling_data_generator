@@ -48,11 +48,11 @@ template-data-generator/
 Every generator produces:
 
 ```
-data/questions/{task}_task/{task_id}/
+data/questions/{domain}_task/{task_id}/
 ├── first_frame.png          # Initial state (REQUIRED)
 ├── final_frame.png          # Goal state (or goal.txt)
 ├── prompt.txt               # Instructions (REQUIRED)
-└── question_metadata.json   # Metadata (REQUIRED)
+└── ground_truth.avi         # Solution video (OPTIONAL)
 ```
 
 ---
@@ -89,6 +89,7 @@ class MazeGenerator(BaseGenerator):
             prompt=self.select_prompt(),
             first_image=first_image,
             final_image=final_image,
+            ground_truth_video=None,  # Optional: path to solution video
             metadata=TaskMetadata(
                 id=task_id,
                 domain=self.config.domain,
@@ -140,6 +141,28 @@ img = renderer.draw_text(img, "Hello", (50, 50))
 # Ensure RGB mode
 img = ImageRenderer.ensure_rgb(img)
 ```
+
+---
+
+## 🎬 Video Generation (Optional)
+
+Generate `ground_truth.avi` files showing animated solutions with highlights and arrows:
+
+```python
+from core.video_utils import ChessVideoGenerator
+
+video_gen = ChessVideoGenerator(fps=10)
+video_path = video_gen.generate_move_video(
+    initial_board_image=first_image,
+    final_board_image=final_image,
+    from_square=(0, 0),  # Starting position (file, rank)
+    to_square=(0, 7),    # Ending position
+    output_path=Path("ground_truth.avi"),
+    num_frames=15
+)
+```
+
+Features: Highlighted squares, animated arrows, smooth transitions (~2.6 sec @ 10 FPS, XVID codec)
 
 ---
 
@@ -197,24 +220,10 @@ writer.write_dataset(tasks)
 - 50-200 words recommended
 - Instructions for video generation
 
-**question_metadata.json**
-```json
-{
-  "id": "chess_0001",
-  "domain": "chess",
-  "prompt": "Animate the chess...",
-  "difficulty": "easy",
-  "tags": ["chess", "mate_in_one"],
-  "created_at": "2025-01-01T00:00:00Z",
-  "metadata": {
-    "solution": "Qg7#"
-  }
-}
-```
-
-Required fields: `id`, `domain`, `prompt`, `difficulty`, `created_at`
-
-Optional fields: `tags`, `metadata` (any extra task data)
+**ground_truth.avi** (optional)
+- AVI format, XVID codec
+- 10 FPS, ~2-4 seconds duration
+- Shows animated solution with visual indicators
 
 ---
 

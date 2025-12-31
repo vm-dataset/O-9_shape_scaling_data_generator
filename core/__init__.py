@@ -4,6 +4,7 @@ from .base_generator import BaseGenerator, GenerationConfig
 from .schemas import TaskPair, TaskMetadata
 from .image_utils import ImageRenderer
 from .output_writer import OutputWriter
+from .video_utils import VideoGenerator, ChessVideoGenerator
 
 __all__ = [
     "BaseGenerator",
@@ -12,4 +13,6 @@ __all__ = [
     "TaskMetadata",
     "ImageRenderer",
     "OutputWriter",
+    "VideoGenerator",
+    "ChessVideoGenerator",
 ]

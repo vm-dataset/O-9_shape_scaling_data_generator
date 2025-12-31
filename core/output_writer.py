@@ -1,6 +1,7 @@
 """Output writer for standard format."""
 
 import json
+import shutil
 from pathlib import Path
 from typing import List
 from .schemas import TaskPair
@@ -33,19 +34,12 @@ class OutputWriter:
         # Write prompt
         (task_dir / "prompt.txt").write_text(task_pair.prompt)
         
-        # Write metadata
-        metadata = {
-            "id": task_pair.task_id,
-            "domain": task_pair.domain,
-            "prompt": task_pair.prompt,
-            "difficulty": task_pair.metadata.difficulty,
-            "tags": task_pair.metadata.tags,
-            "created_at": task_pair.metadata.created_at,
-            "metadata": task_pair.metadata.metadata
-        }
-        
-        with open(task_dir / "question_metadata.json", 'w') as f:
-            json.dump(metadata, f, indent=2)
+        # Write ground truth video if provided
+        if task_pair.ground_truth_video:
+            video_src = Path(task_pair.ground_truth_video)
+            if video_src.exists():
+                video_dst = task_dir / "ground_truth.avi"
+                shutil.copy(video_src, video_dst)
         
         return task_dir
     
