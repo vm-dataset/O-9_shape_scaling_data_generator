@@ -1,0 +1,9 @@
+# Core dependencies
+numpy>=1.24.0
+Pillow>=10.0.0
+pydantic>=2.5.0
+
+# Add your task-specific dependencies here
+# Examples:
+# networkx>=3.0  # For graph-based tasks
+# scipy>=1.11.0  # For scientific computing
