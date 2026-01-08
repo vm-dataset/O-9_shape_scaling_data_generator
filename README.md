@@ -1,6 +1,6 @@
-# Template Data Generator 🎲
+# Shape Scaling Data Generator 📏
 
-A minimal template for creating synthetic reasoning task generators. Fork this and customize it for your own task (maze, sudoku, rotation, etc.).
+A specialized data generator for creating synthetic **shape scaling transformation** tasks in the format A:B :: C:?. Perfect for training models on visual reasoning and analogical thinking with size transformations.
 
 ---
 
@@ -8,8 +8,8 @@ A minimal template for creating synthetic reasoning task generators. Fork this a
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/your-task-generator.git
-cd your-task-generator
+git clone https://github.com/your-org/shape-scaling-data-generator.git
+cd shape-scaling-data-generator
 
 # 2. Create and activate virtual environment
 python3 -m venv venv
@@ -29,20 +29,21 @@ python examples/generate.py --num-samples 50
 ## 📁 Structure
 
 ```
-template-data-generator/
-├── core/                    # ✅ KEEP: Standard utilities
+shape-scaling-data-generator/
+├── core/                    # Framework utilities
 │   ├── base_generator.py   # Abstract base class
 │   ├── schemas.py          # Pydantic models
 │   ├── image_utils.py      # Image helpers
 │   ├── video_utils.py      # Video generation
 │   └── output_writer.py    # File output
-├── src/                     # ⚠️ CUSTOMIZE: Your task logic
-│   ├── generator.py        # Your task generator
-│   ├── prompts.py          # Your prompt templates
-│   └── config.py           # Your configuration
+├── src/                     # Shape scaling implementation
+│   ├── generator.py        # Shape scaling generator
+│   ├── prompts.py          # Scaling prompts
+│   └── config.py           # Scaling configuration
 ├── examples/
 │   └── generate.py         # Entry point
 └── data/questions/         # Generated output
+    └── shape_scaling_task/ # Scaling task outputs
 ```
 
 ---
@@ -52,88 +53,57 @@ template-data-generator/
 Every generator produces:
 
 ```
-data/questions/{domain}_task/{task_id}/
-├── first_frame.png          # Initial state (REQUIRED)
-├── final_frame.png          # Goal state (or goal.txt)
-├── prompt.txt               # Instructions (REQUIRED)
-└── ground_truth.mp4         # Solution video (OPTIONAL)
+data/questions/shape_scaling_task/{task_id}/
+├── first_frame.png          # Shows A→B :: C→? layout
+├── final_frame.png          # Shows A→B :: C→D (answer)
+├── prompt.txt               # Scaling transformation instruction
+└── ground_truth.mp4         # Smooth scaling animation
 ```
 
 ---
 
-## 🎨 Customization (3 Files to Modify)
+## 🎯 Current Implementation: Scaling Transformations
 
-### 1. Update `src/generator.py`
+The current implementation generates **visual analogy tasks** in the format **A:B :: C:?** focused on **size scaling**.
 
-Replace the example chess generator with your task:
+### **Task Type:**
+- **Scaling**: Size transformations (small → large, large → small)
 
-```python
-from core import BaseGenerator, TaskPair, ImageRenderer
+### **Supported Shapes:**
+- **Basic Shapes**: Square, Triangle, Circle, Diamond, Pentagon, Hexagon
+- **Extended Shapes**: Rectangle, Oval, Star, Heart
+- All shapes support scaling up (1.3x, 1.4x, 1.5x, 1.7x) and scaling down (0.5x, 0.6x, 0.7x, 0.8x)
 
-class MazeGenerator(BaseGenerator):
-    def __init__(self, config):
-        super().__init__(config)
-        self.renderer = ImageRenderer(config.image_size)
-    
-    def generate_task_pair(self, task_id: str) -> TaskPair:
-        # 1. Generate your problem
-        maze = self.create_maze()
-        
-        # 2. Solve it
-        solution = self.solve_maze(maze)
-        
-        # 3. Render images
-        first_image = self.render_maze(maze)
-        final_image = self.render_maze_with_solution(maze, solution)
-        
-        # 4. Create TaskPair
-        return TaskPair(
-            task_id=task_id,
-            domain=self.config.domain,
-            prompt=self.select_prompt(),
-            first_image=first_image,
-            final_image=final_image,
-            ground_truth_video=None  # Optional
-        )
-```
+### **Example Tasks:**
+1. **Scale Down**: `large_square → small_square :: large_triangle → small_triangle`
+2. **Scale Up**: `small_circle → large_circle :: small_star → large_star`
+3. **Mixed Shapes**: `large_pentagon → small_pentagon :: large_heart → small_heart`
 
-### 2. Update `src/prompts.py`
+### **Features:**
+- **Diverse Shapes**: 10 different shape types for variety
+- **Balanced Scaling**: Both scaling up and scaling down transformations
+- **Smooth Animation**: Videos show gradual size transformation
+- **Clear Visual Layout**: A → B :: C → ? format with arrows
 
-Replace chess prompts with yours:
+---
 
-```python
-PROMPTS = {
-    "default": [
-        "Animate a path from start to goal through the maze.",
-        "Show the solution route navigating through corridors.",
-    ]
-}
+## 🎨 Customization
 
-def get_prompt(task_type: str = "default") -> str:
-    prompts = PROMPTS.get(task_type, PROMPTS["default"])
-    return random.choice(prompts)
-```
+This generator is specifically designed for shape scaling tasks. Key customizable parameters:
 
-### 3. Update `src/config.py`
+### Configuration (`src/config.py`)
+- **Shapes**: 10 different shape types (square, triangle, circle, etc.)
+- **Scaling Factors**: Both up-scaling (1.3x-1.7x) and down-scaling (0.5x-0.8x)
+- **Image Size**: Default 512x512 with configurable margins
+- **Video Settings**: Frame rate, animation duration
 
-**All hyperparameters go here** - both general and task-specific:
+### Prompts (`src/prompts.py`)
+- Scaling-specific instructions
+- Multiple prompt variations for diversity
 
-```python
-from core import GenerationConfig
-from pydantic import Field
-
-class TaskConfig(GenerationConfig):
-    """Your task-specific configuration."""
-    # Inherits: num_samples, domain, seed, output_dir, image_size
-    
-    # Override defaults
-    domain: str = Field(default="maze")
-    image_size: tuple[int, int] = Field(default=(512, 512))
-    
-    # Task-specific hyperparameters
-    grid_size: int = Field(default=10, description="Maze grid size")
-    wall_thickness: int = Field(default=2, description="Wall thickness")
-    difficulty: str = Field(default="medium", description="easy/medium/hard")
-```
+### Shape Rendering (`src/generator.py`)
+- Clean shape drawing without artifacts
+- Automatic bounds checking
+- Smooth scaling animations
 
 **Single entry point:** `python examples/generate.py --num-samples 50`
